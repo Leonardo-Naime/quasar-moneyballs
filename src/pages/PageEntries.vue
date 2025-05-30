@@ -41,9 +41,14 @@
           {{ useCurrencify(balance) }}
         </div>
       </div>
-      <div class="row q-px-sm q-pb-sm q-col-gutter-sm bg-primary">
+      <q-form
+        @submit="addEntry"
+        class="row q-px-sm q-pb-sm q-col-gutter-sm bg-primary"
+      >
         <div class="col">
           <q-input
+            v-model="addEntryForm.name"
+            ref="nameRef"
             placeholder="Name"
             bg-color="white"
             outlined
@@ -52,6 +57,7 @@
         </div>
         <div class="col">
           <q-input
+            v-model.number="addEntryForm.amount"
             input-class="text-right"
             placeholder="Amount"
             bg-color="white"
@@ -65,10 +71,11 @@
           <q-btn
             color="primary"
             icon="add"
+            type="submit"
             round
           />
         </div>
-      </div>
+      </q-form>
     </q-footer>
   </q-page>
 </template>
@@ -79,7 +86,8 @@
     imports
   */
   
-    import { ref, computed } from 'vue'
+    import { ref, computed, reactive } from 'vue'
+    import { uid } from 'quasar'
     import { useCurrencify } from 'src/use/useCurrencify'
     import { useAmountColorClass } from 'src/use/useAmountColorClass'
 
@@ -121,5 +129,34 @@
         return accumulator + amount
       }, 0)
     })
+
+
+  /*
+    add entry
+  */
+
+    const nameRef = ref(null)
+
+    const addEntryFormDefault = {
+      name: '',
+      amount: null
+    }
+
+    const addEntryForm = reactive({
+      ...addEntryFormDefault
+    })
+
+    const addEntryFormReset = () => {
+      Object.assign(addEntryForm, addEntryFormDefault)
+      nameRef.value.focus()
+    }
+
+    const addEntry = () => {
+      const newEntry = Object.assign({}, addEntryForm, { id: uid() })
+      entries.value.push(newEntry)
+      addEntryFormReset()
+    }
+  
+    
 
 </script>
