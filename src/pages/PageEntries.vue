@@ -6,19 +6,19 @@
         separator
       >
 
-      <q-slide-item
-        v-for="entry in entries"
-        :key="entry.id"
-        @right="onEntrySlideRight($event, entry)"
-        left-color="positive"
-        right-color="negative"
-      >
-        <!-- <template v-slot:left>
-          <q-icon name="done" />
-        </template> -->
-        <template v-slot:right>
-          <q-icon name="delete" />
-        </template>
+        <q-slide-item
+          v-for="entry in storeEntries.entries"
+          :key="entry.id"
+          @right="onEntrySlideRight($event, entry)"
+          left-color="positive"
+          right-color="negative"
+        >
+          <!-- <template v-slot:left>
+            <q-icon name="done" />
+          </template> -->
+          <template v-slot:right>
+            <q-icon name="delete" />
+          </template>
 
           <q-item>
             <q-item-section
@@ -50,14 +50,14 @@
           Balance:
         </div>
         <div
-          :class="useAmountColorClass(balance)"
+          :class="useAmountColorClass(storeEntries.balance)"
           class="col text-h6 text-right"
         >
-          {{ useCurrencify(balance) }}
+          {{ useCurrencify(storeEntries.balance) }}
         </div>
       </div>
       <q-form
-        @submit="addEntry"
+        @submit="addEntryFormSubmit"
         class="row q-px-sm q-pb-sm q-col-gutter-sm bg-primary"
       >
         <div class="col">
@@ -101,10 +101,18 @@
     imports
   */
   
-    import { ref, computed, reactive } from 'vue'
-    import { uid, useQuasar } from 'quasar'
+    import { ref, reactive } from 'vue'
+    import { useQuasar } from 'quasar'
+    import { useStoreEntries } from 'src/stores/storeEntries'
     import { useCurrencify } from 'src/use/useCurrencify'
     import { useAmountColorClass } from 'src/use/useAmountColorClass'
+
+
+  /*
+    stores
+  */
+  
+    const storeEntries = useStoreEntries()
 
 
   /*
@@ -112,45 +120,6 @@
   */
   
     const $q = useQuasar()  
-
-
-  /*
-    entries
-  */
-  
-    const entries = ref([
-      {
-        id: 'id1',
-        name: 'Salary',
-        amount: 4999.99
-      },
-      {
-        id: 'id2',
-        name: 'Rent',
-        amount: -999
-      },
-      {
-        id: 'id3',
-        name: 'Phone',
-        amount: -14.99
-      },
-      {
-        id: 'id4',
-        name: 'Unknown',
-        amount: 0
-      },
-    ])
-
-
-  /*
-    balance
-  */
-  
-    const balance = computed(() => {
-      return entries.value.reduce((accumulator, { amount }) => {
-        return accumulator + amount
-      }, 0)
-    })
 
 
   /*
@@ -173,9 +142,8 @@
       nameRef.value.focus()
     }
 
-    const addEntry = () => {
-      const newEntry = Object.assign({}, addEntryForm, { id: uid() })
-      entries.value.push(newEntry)
+    const addEntryFormSubmit = () => {
+      storeEntries.addEntry(addEntryForm)
       addEntryFormReset()
     }
   
@@ -206,25 +174,10 @@
           noCaps: true
         }
       }).onOk(() => {
-        deleteEntry(entry.id)
+        storeEntries.deleteEntry(entry.id)
       }).onCancel(() => {
         reset()
       })
     }
-
-
-  /*
-    delete entry
-  */
-  
-    const deleteEntry = entryId => {
-      const index = entries.value.findIndex(entry => entry.id === entryId)
-      entries.value.splice(index, 1)
-      $q.notify({
-        message: 'Entry deleted',
-        position: 'top'
-      })
-    }
-    
 
 </script>
