@@ -1,12 +1,14 @@
 <template>
   <q-slide-item
+    @left="onEntrySlideLeft"
     @right="onEntrySlideRight"
     left-color="positive"
     right-color="negative"
+    :class="{ 'bg-grey-2' : entry.paid }"
   >
-    <!-- <template v-slot:left>
+    <template v-slot:left>
       <q-icon name="done" />
-    </template> -->
+    </template>
     <template v-slot:right>
       <q-icon name="delete" />
     </template>
@@ -14,7 +16,10 @@
     <q-item>
       <q-item-section
         class="text-weight-bold"
-        :class="useAmountColorClass(entry.amount)"
+        :class="[
+          useAmountColorClass(entry.amount),
+          { 'text-strike' : entry.paid }
+        ]"
       >
         {{ entry.name }}
         <q-popup-edit
@@ -40,7 +45,10 @@
 
       <q-item-section
         class="text-weight-bold"
-        :class="useAmountColorClass(entry.amount)"
+        :class="[
+          useAmountColorClass(entry.amount),
+          { 'text-strike' : entry.paid }
+        ]"
         side
       >
         {{ useCurrencify(entry.amount) }}
@@ -112,6 +120,11 @@
     slide items
   */
   
+    const onEntrySlideLeft = ({ reset }) => {
+      storeEntries.updateEntry(props.entry.id, { paid: !props.entry.paid })
+      reset()
+    }
+
     const onEntrySlideRight = ({ reset }) => {
       $q.dialog({
         title: 'Delete Entry',
