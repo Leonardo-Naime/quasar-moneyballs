@@ -8,15 +8,23 @@
 
       <q-list
         v-else
-        bordered
-        separator
+        class="entries"
       >
 
-        <Entry 
-          v-for="entry in storeEntries.entries"
-          :key="entry.id"
-          :entry="entry"
-        />
+        <Sortable
+          @end="storeEntries.sortEnd"
+          :list="storeEntries.entries"
+          :options="{ handle: '.handle' }"
+          item-key="id"
+          tag="div"
+        >
+          <template #item="{element, index}">
+            <Entry 
+              :key="element.id"
+              :entry="element"
+            />
+          </template>
+        </Sortable>
 
       </q-list>
     </div>
@@ -41,6 +49,7 @@
     import AddEntry from 'src/components/Entries/AddEntry.vue'
     import Entry from 'src/components/Entries/Entry.vue'
     import NothingHere from 'src/components/Entries/NothingHere.vue'
+    import { Sortable } from 'sortablejs-vue3'
 
 
   /*
