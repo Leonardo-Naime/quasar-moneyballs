@@ -17,6 +17,25 @@
         :class="useAmountColorClass(entry.amount)"
       >
         {{ entry.name }}
+        <q-popup-edit
+          @save="onNameUpdate"
+          :model-value="entry.name"
+          v-slot="scope"
+          :cover="false"
+          :offset="[16,12]"
+          anchor="top left"
+          label-set="Ok"
+          auto-save
+          buttons
+        >
+          <q-input
+            v-model="scope.value"
+            @keyup.enter="scope.set"
+            input-class="text-weight-bold letter-spacing-none"
+            autofocus
+            dense
+          />
+        </q-popup-edit>
       </q-item-section>
 
       <q-item-section
@@ -25,6 +44,27 @@
         side
       >
         {{ useCurrencify(entry.amount) }}
+        <q-popup-edit
+          @save="onAmountUpdate"
+          :model-value="entry.amount"
+          v-slot="scope"
+          :cover="false"
+          :offset="[16,12]"
+          anchor="top left"
+          label-set="Ok"
+          auto-save
+          buttons
+        >
+          <q-input
+            v-model.number="scope.value"
+            @keyup.enter="scope.set"
+            input-class="text-weight-bold letter-spacing-none text-right"
+            type="number"
+            step="0.01"
+            autofocus
+            dense
+          />
+        </q-popup-edit>
       </q-item-section>
     </q-item>
 
@@ -98,6 +138,19 @@
       }).onCancel(() => {
         reset()
       })
+    }
+
+
+  /*
+    name & amount update
+  */
+  
+    const onNameUpdate = value => {
+      storeEntries.updateEntry(props.entry.id, { name: value })
+    }
+
+    const onAmountUpdate = value => {
+      storeEntries.updateEntry(props.entry.id, { amount: value })
     }
 
 </script>
