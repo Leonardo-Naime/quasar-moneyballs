@@ -13,9 +13,11 @@
       <q-icon name="delete" />
     </template>
 
-    <q-item>
+    <q-item
+      class="row"
+    >
       <q-item-section
-        class="text-weight-bold"
+        class="text-weight-bold col"
         :class="[
           useAmountColorClass(entry.amount),
           { 'text-strike' : entry.paid }
@@ -45,21 +47,25 @@
       </q-item-section>
 
       <q-item-section
-        class="text-weight-bold"
+        class="text-weight-bold relative-position col"
         :class="[
-          useAmountColorClass(entry.amount),
-          { 'text-strike' : entry.paid }
+          useAmountColorClass(entry.amount)
         ]"
         side
       >
-        {{ useCurrencify(entry.amount) }}
+        <span
+          :class="{ 'text-strike' : entry.paid }"
+        >
+          {{ useCurrencify(entry.amount) }}
+        </span>
         <q-popup-edit
           @save="onAmountUpdate"
           :model-value="entry.amount"
           v-slot="scope"
           :cover="false"
           :offset="[16,12]"
-          anchor="top left"
+          anchor="top right"
+          self="top right"
           label-set="Ok"
           auto-save
           buttons
@@ -75,6 +81,16 @@
             dense
           />
         </q-popup-edit>
+        <q-chip
+          v-if="storeSettings.settings.showRunningBalance"
+          :class="useAmountColorClass(storeEntries.runningBalances[index])"
+          class="running-balance absolute-bottom-right"
+          size="9px"
+          outline
+          dense
+        >
+          {{ useCurrencify(storeEntries.runningBalances[index]) }}
+        </q-chip>
       </q-item-section>
 
       <q-item-section
@@ -100,6 +116,7 @@
   
     import { useQuasar } from 'quasar'
     import { useStoreEntries } from 'src/stores/storeEntries'
+    import { useStoreSettings } from 'src/stores/storeSettings'
     import { useCurrencify } from 'src/use/useCurrencify'
     import { useAmountColorClass } from 'src/use/useAmountColorClass'
     import vSelectAll from 'src/directives/directiveSelectAll'
@@ -109,7 +126,8 @@
     stores
   */
   
-    const storeEntries = useStoreEntries()
+    const storeEntries = useStoreEntries(),
+          storeSettings = useStoreSettings()
 
 
   /*
@@ -119,6 +137,10 @@
     const props = defineProps({
       entry: {
         type: Object,
+        required: true
+      },
+      index: {
+        type: Number,
         required: true
       }
     })  
@@ -140,6 +162,11 @@
     }
 
     const onEntrySlideRight = ({ reset }) => {
+      if (storeSettings.settings.promptToDelete) promptToDelete(reset)
+      else storeEntries.deleteEntry(props.entry.id)
+    }
+
+    const promptToDelete = reset => {
       $q.dialog({
         title: 'Delete Entry',
         message: `
