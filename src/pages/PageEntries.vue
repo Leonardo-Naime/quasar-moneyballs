@@ -2,12 +2,17 @@
   <q-page>
     <div class="q-pa-md">
 
-      <NothingHere
-        v-if="!storeEntries.entries.length"
-      />
+      <transition
+        appear
+        enter-active-class="animated jackInTheBox slower"
+      >
+        <NothingHere
+          v-if="!storeEntries.entries.length"
+        />
+      </transition>
 
       <q-list
-        v-else
+        v-if="storeEntries.entries.length"
         class="entries"
       >
 
@@ -32,7 +37,13 @@
     <q-footer
       class="bg-transparent"
     >
-      <Balance />
+      <transition
+        appear
+        enter-active-class="animated fadeInUp"
+        leave-active-class="animated fadeOutDown"
+      >
+        <Balance v-if="storeEntries.entries.length" />
+      </transition>
       <AddEntry />
     </q-footer>
   </q-page>
