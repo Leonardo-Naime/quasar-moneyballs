@@ -7,7 +7,7 @@ export const useStoreEntries = defineStore('entries', () => {
   /*
     state
   */
-  
+
     const entries = ref([
       {
         id: 'id1',
@@ -43,7 +43,7 @@ export const useStoreEntries = defineStore('entries', () => {
   /*
     getters
   */
-  
+
     const balance = computed(() => {
       return entries.value.reduce((accumulator, { amount }) => {
         return accumulator + amount
@@ -75,7 +75,7 @@ export const useStoreEntries = defineStore('entries', () => {
   /*
     actions
   */
-  
+
     const addEntry = addEntryForm => {
       const newEntry = Object.assign({}, addEntryForm, { id: uid(), paid: false })
       entries.value.push(newEntry)
@@ -105,7 +105,7 @@ export const useStoreEntries = defineStore('entries', () => {
   /*
     helpers
   */
-  
+
     const getEntryIndexById = entryId => {
       return entries.value.findIndex(entry => entry.id === entryId)
     }
@@ -114,8 +114,8 @@ export const useStoreEntries = defineStore('entries', () => {
   /*
     return
   */
-  
-    return { 
+
+    return {
 
       // state
       entries,
@@ -133,5 +133,5 @@ export const useStoreEntries = defineStore('entries', () => {
       sortEnd
 
     }
-    
+
 })
