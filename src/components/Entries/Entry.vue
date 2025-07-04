@@ -45,7 +45,7 @@
             @keyup.enter="scope.set"
             input-class="text-weight-bold letter-spacing-none"
             v-select-all
-            autofocus
+            v-autofocus
             dense
           />
         </q-popup-edit>
@@ -66,6 +66,7 @@
         <q-popup-edit
           @save="onAmountUpdate"
           :model-value="entry.amount"
+          :validate="val => typeof val === 'number'"
           v-slot="scope"
           :cover="false"
           :offset="[16,12]"
@@ -78,11 +79,12 @@
           <q-input
             v-model.number="scope.value"
             @keyup.enter="scope.set"
+            :rules="[val => typeof val === 'number' || 'Enter a valid number']"
             input-class="text-weight-bold letter-spacing-none text-right"
             type="number"
             step="0.01"
             v-select-all
-            autofocus
+            v-autofocus
             dense
           />
         </q-popup-edit>
@@ -119,6 +121,7 @@
     imports
   */
   
+    import { Dialog } from '@capacitor/dialog'
     import { useQuasar } from 'quasar'
     import { useStoreEntries } from 'src/stores/storeEntries'
     import { useStoreSettings } from 'src/stores/storeSettings'
@@ -126,6 +129,7 @@
     import { useAmountColorClass } from 'src/use/useAmountColorClass'
     import { useLightOrDark } from 'src/use/useLightOrDark'
     import vSelectAll from 'src/directives/directiveSelectAll'
+    import vAutofocus from 'src/directives/directiveAutofocus'
 
 
   /*
@@ -172,32 +176,52 @@
       else storeEntries.deleteEntry(props.entry.id)
     }
 
-    const promptToDelete = reset => {
-      $q.dialog({
-        title: 'Delete Entry',
-        message: `
-          Delete this entry?
-          <div class="q-mt-md text-weight-bold ${ useAmountColorClass(props.entry.amount) }">
-            ${ props.entry.name } : ${ useCurrencify(props.entry.amount) }
-          </div>
-        `,
-        cancel: true,
-        persistent: true,
-        html: true,
-        ok: {
-          label: 'Delete',
-          color: 'negative',
-          noCaps: true
-        },
-        cancel: {
-          color: 'primary',
-          noCaps: true
-        }
-      }).onOk(() => {
-        storeEntries.deleteEntry(props.entry.id)
-      }).onCancel(() => {
-        reset()
-      })
+    const promptToDelete = async (reset) => {
+
+      const entryDetails = `${ props.entry.name } : ${ useCurrencify(props.entry.amount) }`,
+            title = 'Delete Entry',
+            messageStart = 'Delete this Entry?',
+            message = $q.platform.is.capacitor
+                      ? `${ messageStart }\n\n${ entryDetails }`
+                      : `
+                        ${ messageStart }
+                        <div class="q-mt-md text-weight-bold ${ useAmountColorClass(props.entry.amount) }">
+                          ${ entryDetails }
+                        </div>
+                      `,
+            okButtonTitle = 'Delete'
+
+      if ($q.platform.is.capacitor) {
+        const { value } = await Dialog.confirm({
+          title,
+          message,
+          okButtonTitle
+        })
+        if (value) storeEntries.deleteEntry(props.entry.id)
+        else reset()
+      }
+      else {
+        $q.dialog({
+          title,
+          message,
+          cancel: true,
+          persistent: true,
+          html: true,
+          ok: {
+            label: okButtonTitle,
+            color: 'negative',
+            noCaps: true
+          },
+          cancel: {
+            color: 'primary',
+            noCaps: true
+          }
+        }).onOk(() => {
+          storeEntries.deleteEntry(props.entry.id)
+        }).onCancel(() => {
+          reset()
+        })
+      }
     }
 
 

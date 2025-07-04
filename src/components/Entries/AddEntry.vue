@@ -1,7 +1,7 @@
 <template>
   <q-form
     @submit="addEntryFormSubmit"
-    class="row q-px-sm q-pb-sm q-col-gutter-sm bg-primary"
+    class="add-entry-form row q-px-sm q-pb-sm q-col-gutter-sm bg-primary"
   >
     <div class="col">
       <q-input
@@ -17,6 +17,7 @@
     <div class="col">
       <q-input
         v-model.number="addEntryForm.amount"
+        :rules="[val => (typeof val === 'number' || val === null) || 'Enter a valid number']"
         input-class="text-right"
         placeholder="Amount"
         :bg-color="useLightOrDark('white', 'black')"
@@ -45,9 +46,17 @@
   */
   
     import { ref, reactive } from 'vue'
+    import { useQuasar } from 'quasar'
     import { useStoreEntries } from 'src/stores/storeEntries'
     import { useLightOrDark } from 'src/use/useLightOrDark'
     import vSelectAll from 'src/directives/directiveSelectAll'
+
+
+  /*
+    quasar
+  */
+  
+    const $q = useQuasar()
 
 
   /*
@@ -74,12 +83,12 @@
 
     const addEntryFormReset = () => {
       Object.assign(addEntryForm, addEntryFormDefault)
-      nameRef.value.focus()
+      if (!$q.platform.is.capacitor) nameRef.value.focus()
     }
-
-    const addEntryFormSubmit = () => {
-      storeEntries.addEntry(addEntryForm)
-      addEntryFormReset()
-    }
+  
+  const addEntryFormSubmit = () => {
+    storeEntries.addEntry(addEntryForm)
+    addEntryFormReset()
+  }
 
 </script>

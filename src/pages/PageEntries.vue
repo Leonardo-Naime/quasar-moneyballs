@@ -33,6 +33,7 @@
         </Sortable>
 
       </q-list>
+
     </div>
 
     <q-footer
